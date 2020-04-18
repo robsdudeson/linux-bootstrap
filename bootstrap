@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+################################################################################
+# bootstrap
+#
+# This script is intended to set up a new Linux desktop machine with my dotfiles
+# and other development preferences.
+#
+# Much of this script was derived from thoughtbot's now unsupported Linux
+# version of Laptop.
+# https://github.com/thoughtbot/laptop/tree/39768b19959f74724ed0c0ea92e5b2f6f78e45c1
+# and
+# https://github.com/joshukraine/linux-bootstrap
+################################################################################
+set -e
+
+# Thank you, thoughtbot! :)
+bootstrap_echo() {
+  local fmt="$1"; shift
+
+  # shellcheck disable=SC2059
+  printf "[linux-bootstrap] $fmt\n" "$@"
+}
+
+osname=$(uname)
+
+bootstrap_echo "Let's bootstrap some Linux"
+bootstrap_echo "checking for Linux..."
+if [ $osname != "Linux" ]; then
+  bootstrap_echo "Looks like we're trying to run on a non-Linux system.  BAIL!"
+  exit 1
+else 
+  bootstrap_echo "We're on linux!"
+fi
+
+bootstrap_echo "checking sudo..."
+command -v sudo >/dev/null
+[ $? != 0 ] && bootstrap_echo "missing sudo, please install as root" && exit 1
+
+if [ "$EUID" != 0 ]; then
+  bootstrap_echo "we need sudo access to continue.  We're gonna relaunch ..."
+  exec sudo "$0" "$@"
+else
+  bootstrap_echo "We're all sudoed up!"
+fi
+
+bootstrap_echo "checking apt..."
+command -v apt >/dev/null 
+if [ $? != 0 ]; then
+  bootstrap_echo "installing apt"
+  sudo apt-get install -y apt
+else
+  bootstrap_echo "using apt"
+fi
+
+bootstrap_echo "upgrading the system..."
+sudo apt update
+sudo apt -y upgrade
+
+bootstrap_echo "All Done!"

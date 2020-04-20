@@ -24,6 +24,11 @@ bootstrap_echo() {
 
 osname=$(uname)
 
+OLD_DOTFILES_BACKUP=$HOME/old_dotfiles_backup
+DOTFILES_REPO_URL="https://github.com/robsdudeson/dotfiles.git"
+DOTFILES_BRANCH="master"
+DOTFILES_DIR=$HOME/dotfiles
+
 bootstrap_echo "Let's bootstrap some Linux"
 bootstrap_echo "checking for Linux..."
 if [ $osname != "Linux" ]; then
@@ -38,8 +43,8 @@ command -v sudo >/dev/null
 [ $? != 0 ] && bootstrap_echo "missing sudo, please install as root" && exit 1
 
 if [ "$EUID" != 0 ]; then
-  bootstrap_echo "we need sudo access to continue.  We're gonna relaunch ..."
-  exec sudo "$0" "$@"
+  bootstrap_echo "we need sudo access to continue."
+  sudo echo "I'm Sudo"
 else
   bootstrap_echo "We're all sudoed up!"
 fi
@@ -53,8 +58,59 @@ else
   bootstrap_echo "using apt"
 fi
 
-bootstrap_echo "upgrading the system..."
+bootstrap_echo "Step 1: upgrading the system..."
 sudo apt update
 sudo apt -y upgrade
+bootstrap_echo "we're upgraded!"
 
-bootstrap_echo "All Done!"
+bootstrap_echo "Step 2: Installing basic tools..."
+bootstrap_echo "Installing build-essential..."
+sudo apt install -y build-essential
+
+bootstrap_echo "Installing curl ..."
+sudo apt install -y curl
+
+bootstrap_echo "Installing python software properties..."
+sudo apt install -y software-properties-common
+
+bootstrap_echo "Installing other useful libraries..."
+#sudo apt install -y zlib1g-dev libssl-dev libreadline-dev libyaml-dev libsqlite3-dev libxml2-dev libxslt1-dev libcurl4-openssl-dev libffi-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip
+
+bootstrap_echo "Installing git..."
+sudo apt install -y git
+
+bootstrap_echo "Installing asdf..."
+ASDF_INSTALL_TARGET=~/.asdf
+if [ -d "$ASDF_INSTALL_TARGET" ]
+then
+  bootstrap_echo "asdf is already installed at ${ASDF_INSTALL_TARGET}"
+else
+  git clone https://github.com/asdf-vm/asdf.git ${ASDF_INSTALL_TARGET} --branch v0.7.8
+  bootstrap_echo "asdf is installed at ${ASDF_INSTALL_TARGET}"
+fi
+
+bootstrap_echo "Step 3: Installing dotfiles..."
+if [[ -d $DOTFILES_DIR ]]; then
+  bootstrap_echo "Backing up old dotfiles to $HOME/old_dotfiles_backup..."
+  rm -rf "$OLD_DOTFILES_BACKUP"
+  cp -R "$DOTFILES_DIR" "$OLD_DOTFILES_BACKUP"
+  rm -rf "$DOTFILES_DIR"
+fi
+
+bootstrap_echo "Cloning your dotfiles repo to ${DOTFILES_DIR} ..."
+git clone "$DOTFILES_REPO_URL" -b "$DOTFILES_BRANCH" "$DOTFILES_DIR"
+source "$DOTFILES_DIR"/install
+
+bootstrap_echo "Sym-linking bin utilities..."
+bin_target="$HOME"/bin/
+if [ ! -L "$bin_target" ]; then
+  ln -s "$bin_target" "$BOOTSTRAP_DIR"/bin/
+  bootstrap_echo "$bin_target created!"
+else
+  bootstrap_echo "[WARN] $bin_target already exists"
+fi
+bootstrap_echo "Done!"
+
+printf "\n******************************************************************\n"
+printf "\n**** Bootstrap script complete! Please restart your computer. ****\n"
+printf "\n******************************************************************\n"

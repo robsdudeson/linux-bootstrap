@@ -122,6 +122,12 @@ asdf install python $python3_version
 asdf global python $python2_version $python3_version
 bootstrap_echo "remeber to use 'asdf reshim python' after installing things with 'pip'"
 
+bootstrap_echo "Installing vscode..."
+command -v code >/dev/null 
+if [ $? != 0 ]; then
+  sudo snap install --classic code # or code-insiders
+fi
+
 bootstrap_echo "Step 3: Installing dotfiles..."
 if [[ -d $DOTFILES_DIR ]]; then
   bootstrap_echo "Backing up old dotfiles to $HOME/old_dotfiles_backup..."

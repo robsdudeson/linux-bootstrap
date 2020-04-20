@@ -23,6 +23,7 @@ bootstrap_echo() {
 }
 
 osname=$(uname)
+bootstrap_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 OLD_DOTFILES_BACKUP=$HOME/old_dotfiles_backup
 DOTFILES_REPO_URL="https://github.com/robsdudeson/dotfiles.git"
@@ -143,7 +144,7 @@ source "$DOTFILES_DIR"/install
 bootstrap_echo "Sym-linking bin utilities..."
 bin_target="$HOME"/bin/
 if [ ! -L "$bin_target" ]; then
-  ln -s "$bin_target" "$BOOTSTRAP_DIR"/bin/
+  ln -s "$bin_target" "$bootstrap_dir"/bin/
   bootstrap_echo "$bin_target created!"
 else
   bootstrap_echo "[WARN] $bin_target already exists"

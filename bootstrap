@@ -107,6 +107,12 @@ asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git || echo ""
 asdf install elixir $elixir_version
 asdf global elixir $elixir_version
 
+bootstrap_echo "Installing ruby..."
+ruby_version='2.6.3'
+asdf plugin-add ruby https://github.com/asdf-vm/asdf-ruby.git || echo ""
+asdf install ruby $ruby_version
+asdf global ruby $ruby_version
+
 bootstrap_echo "Step 3: Installing dotfiles..."
 if [[ -d $DOTFILES_DIR ]]; then
   bootstrap_echo "Backing up old dotfiles to $HOME/old_dotfiles_backup..."

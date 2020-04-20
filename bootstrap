@@ -113,6 +113,15 @@ asdf plugin-add ruby https://github.com/asdf-vm/asdf-ruby.git || echo ""
 asdf install ruby $ruby_version
 asdf global ruby $ruby_version
 
+bootstrap_echo "Installing python..."
+python2_version='2.7.17'
+python3_version='3.8.2'
+asdf plugin-add python || echo ""
+asdf install python $python2_version
+asdf install python $python3_version
+asdf global python $python2_version $python3_version
+bootstrap_echo "remeber to use 'asdf reshim python' after installing things with 'pip'"
+
 bootstrap_echo "Step 3: Installing dotfiles..."
 if [[ -d $DOTFILES_DIR ]]; then
   bootstrap_echo "Backing up old dotfiles to $HOME/old_dotfiles_backup..."

@@ -24,11 +24,14 @@ bootstrap_echo() {
 
 osname=$(uname)
 bootstrap_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+bootstrap_repo_url="https://github.com/robsdudeson/linux-bootstrap.git"
 
 OLD_DOTFILES_BACKUP=$HOME/old_dotfiles_backup
 DOTFILES_REPO_URL="https://github.com/robsdudeson/dotfiles.git"
 DOTFILES_BRANCH="master"
 DOTFILES_DIR=$HOME/dotfiles
+
+SNAP_BIN="/snap/bin"
 
 bootstrap_echo "Let's bootstrap some Linux"
 bootstrap_echo "checking for Linux..."
@@ -65,30 +68,40 @@ sudo apt -y upgrade
 bootstrap_echo "we're upgraded!"
 
 bootstrap_echo "Step 2: Installing basic tools..."
-bootstrap_echo "Installing build-essential..."
-sudo apt install -y build-essential
+bootstrap_echo "installing applications..."
+sudo apt install -y build-essential \
+                    curl \
+                    software-properties-common \
+                    inotify-tools \
+                    unzip \
+                    git \
+                    snapd \
+                    zsh \
+                    task-cinnamon-desktop
 
-bootstrap_echo "Installing curl ..."
-sudo apt install -y curl
+bootstrap_echo "adding $SNAP_BIN to \$PATH"
+export PATH="$PATH $SNAP_BIN"
 
-bootstrap_echo "Installing python software properties..."
-sudo apt install -y software-properties-common
+bootstrap_echo "Installing snap applications..."
+command -v authy >/dev/null 
+if [ $? != 0 ]; then
+  sudo snap install authy --beta
+fi
 
-bootstrap_echo "Installing other useful libraries..."
-#sudo apt install -y zlib1g-dev libssl-dev libreadline-dev libyaml-dev libsqlite3-dev libxml2-dev libxslt1-dev libcurl4-openssl-dev libffi-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip
-sudo apt install -y inotifywait
+command -v code >/dev/null 
+if [ $? != 0 ]; then
+  sudo snap install --classic code # or code-insiders
+fi
 
-bootstrap_echo "Installing git..."
-sudo apt install -y git
+command -v insomnia >/dev/null 
+if [ $? != 0 ]; then
+  sudo snap install insomnia
+fi
 
-bootstrap_echo "Installing snap..."
-sudo apt install -y snapd
-
-bootstrap_echo "Installing authy..."
-sudo snap install authy --beta
-
-bootstrap_echo "Installing zsh..."
-sudo apt install -y zsh
+command -v dbeaver-ce >/dev/null 
+if [ $? != 0 ]; then
+  sudo snap install dbeaver-ce
+fi
 
 bootstrap_echo "Cloning powerlevel10k for zsh..."
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
@@ -139,12 +152,6 @@ asdf install python $python3_version
 asdf global python $python2_version $python3_version
 bootstrap_echo "remeber to use 'asdf reshim python' after installing things with 'pip'"
 
-bootstrap_echo "Installing vscode..."
-command -v code >/dev/null 
-if [ $? != 0 ]; then
-  sudo snap install --classic code # or code-insiders
-fi
-
 bootstrap_echo "Step 3: Installing dotfiles..."
 if [[ -d $DOTFILES_DIR ]]; then
   bootstrap_echo "Backing up old dotfiles to $HOME/old_dotfiles_backup..."
@@ -155,7 +162,6 @@ fi
 
 bootstrap_echo "Cloning your dotfiles repo to ${DOTFILES_DIR} ..."
 git clone "$DOTFILES_REPO_URL" -b "$DOTFILES_BRANCH" "$DOTFILES_DIR"
-systemctl --user --now enable gitwatch@$(systemd-escape "'-r $DOTFILES_REPO_URL' $DOTFILES_DIR").service
 source "$DOTFILES_DIR"/install
 
 bootstrap_echo "Sym-linking bin utilities..."
@@ -166,6 +172,11 @@ if [ ! -L "$bin_target" ]; then
 else
   bootstrap_echo "[WARN] $bin_target already exists"
 fi
+
+bootstrap_echo "setting up gitwatch..."
+systemctl --user --now enable gitwatch@$(systemd-escape "'-r $bootstrap_repo_url' $bootstrap_dir").service
+systemctl --user --now enable gitwatch@$(systemd-escape "'-r $DOTFILES_REPO_URL' $DOTFILES_DIR").service
+
 bootstrap_echo "Done!"
 
 printf "\n******************************************************************\n"

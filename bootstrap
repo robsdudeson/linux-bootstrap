@@ -84,6 +84,7 @@ sudo dpkg --add-architecture i386
 bootstrap_echo "Step 1: upgrading the system..."
 sudo apt update
 sudo apt -y upgrade
+sudo apt -y dist-upgrade
 bootstrap_echo "we're upgraded!"
 
 # TODO: install SSH

@@ -33,6 +33,10 @@ DOTFILES_DIR=$HOME/dotfiles
 
 SNAP_BIN="/snap/bin"
 
+backups_dir="$bootstrap_dir/backups"
+
+apt_config_dir="/etc/apt"
+
 bootstrap_echo "Let's bootstrap some Linux"
 bootstrap_echo "checking for Linux..."
 if [ $osname != "Linux" ]; then
@@ -62,11 +66,17 @@ else
   bootstrap_echo "using apt"
 fi
 
+bootstrap_echo "moving to debian testing..."
+sudo cp -r $apt_config_dir "$backups_dir$apt_config_dir"
+source ./apt/pre-reqs.sh
+cp "$bootstrap_dir/apt/etc/apt/sources.list" $apt_config_dir
+
 bootstrap_echo "Step 1: upgrading the system..."
 sudo apt update
 sudo apt -y upgrade
 bootstrap_echo "we're upgraded!"
 
+# TODO: install SSH
 bootstrap_echo "Step 2: Installing basic tools..."
 bootstrap_echo "installing applications..."
 sudo apt install -y build-essential \
@@ -77,7 +87,13 @@ sudo apt install -y build-essential \
                     git \
                     snapd \
                     zsh \
-                    task-cinnamon-desktop
+                    task-cinnamon-desktop \
+                    wget \
+                    apt-transport-https \
+                    dirmngr \
+                    google-chrome-stable \
+                    googleearth-package \
+                    steam
 
 bootstrap_echo "adding $SNAP_BIN to \$PATH"
 export PATH="$PATH $SNAP_BIN"

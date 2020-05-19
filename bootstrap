@@ -72,8 +72,9 @@ else
 fi
 
 bootstrap_echo "moving to debian testing..."
+mkdir "$backups_dir"
 mkdir "$backups_dir$apt_config_dir"
-sudo cp -r $apt_config_dir "$backups_dir$apt_config_dir"
+sudo cp -rf $apt_config_dir "$backups_dir$apt_config_dir"
 source ./apt/pre-reqs.sh
 cp "$bootstrap_dir/apt/etc/apt/sources.list" $apt_config_dir
 

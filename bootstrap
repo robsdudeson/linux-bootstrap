@@ -103,8 +103,8 @@ sudo apt install -y build-essential \
                     apt-transport-https \
                     dirmngr \
                     google-chrome-stable \
-                    googleearth-package \
-                    steam \
+                    google-earth-ec-stable \
+                    steam-launcher \
                     vim
 
 bootstrap_echo "adding $SNAP_BIN to \$PATH"

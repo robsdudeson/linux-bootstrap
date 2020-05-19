@@ -85,6 +85,8 @@ bootstrap_echo "Step 1: upgrading the system..."
 sudo apt update
 sudo apt -y upgrade
 sudo apt -y dist-upgrade
+sudo apt -y autoremove
+sudo apt -y autoclean
 bootstrap_echo "we're upgraded!"
 
 # TODO: install SSH

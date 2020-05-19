@@ -76,7 +76,7 @@ mkdir "$backups_dir"
 mkdir "$backups_dir/etc/"
 sudo cp -rf $apt_config_dir "$backups_dir$apt_config_dir"
 source ./apt/pre-reqs.sh
-cp "$bootstrap_dir/apt/etc/apt/sources.list" $apt_config_dir
+sudo cp "$bootstrap_dir/apt/etc/apt/sources.list" $apt_config_dir
 
 bootstrap_echo "Step 1: upgrading the system..."
 sudo apt update
